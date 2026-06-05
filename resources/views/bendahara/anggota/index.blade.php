@@ -93,6 +93,14 @@
                         </div>
                     </div>
 
+                    <div id="v_bukti_container" class="hidden mb-4">
+                        <p class="text-xs font-bold text-slate-500 mb-2">Bukti Pembayaran (Transfer BCA)</p>
+                        <a id="v_bukti_link" href="#" target="_blank" class="block w-full border border-slate-200 rounded-xl overflow-hidden hover:opacity-90 transition">
+                            <img id="v_bukti_img" src="" alt="Bukti Pembayaran" class="w-full h-auto object-contain max-h-48 bg-slate-100">
+                        </a>
+                        <p class="text-[10px] text-slate-400 mt-1 italic">*Klik gambar untuk melihat ukuran penuh</p>
+                    </div>
+
                     <form id="formVerify" onsubmit="event.preventDefault(); submitVerification();">
                         <input type="hidden" id="v_id">
                         <label class="block text-sm font-medium text-slate-700 mb-1">Catatan Verifikasi (Opsional)</label>
@@ -158,6 +166,15 @@
                     $('#v_pekerjaan').text(a.pekerjaan);
                     $('#v_alamat').text(a.alamat);
                     $('#v_catatan').val('');
+                    
+                    if (a.bukti_pembayaran) {
+                        const url = '/storage/' + a.bukti_pembayaran;
+                        $('#v_bukti_img').attr('src', url);
+                        $('#v_bukti_link').attr('href', url);
+                        $('#v_bukti_container').removeClass('hidden');
+                    } else {
+                        $('#v_bukti_container').addClass('hidden');
+                    }
                     
                     $('#verifyModal').removeClass('hidden');
                 }
