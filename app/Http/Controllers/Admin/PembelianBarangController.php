@@ -31,7 +31,11 @@ class PembelianBarangController extends Controller
                 return '<span class="px-2 py-1 text-xs rounded-full ' . $color . '">' . ucfirst($row->status) . '</span>';
             })
             ->addColumn('action', function ($row) {
-                return '<button class="btn-detail bg-blue-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-blue-600 transition" data-id="' . $row->id . '">Detail</button>';
+                return '<div class="flex items-center justify-center">
+                            <button class="btn-detail bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-600 transition shadow-sm flex items-center gap-2" data-id="' . $row->id . '">
+                                <i class="fas fa-eye"></i> Detail
+                            </button>
+                        </div>';
             })
             ->rawColumns(['action', 'status_badge'])
             ->make(true);

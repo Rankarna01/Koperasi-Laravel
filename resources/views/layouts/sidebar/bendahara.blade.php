@@ -7,8 +7,8 @@
     <p class="px-4 mt-4 mb-2 text-[11px] font-bold tracking-wider text-slate-400 uppercase">Master Data</p>
     
     <a href="{{ route('bendahara.anggota.index') }}" class="sidebar-link {{ request()->routeIs('bendahara.anggota.*') ? 'active' : '' }} flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm text-slate-700">
-        <i class="fas fa-users w-5 text-center text-slate-400"></i>
-        <span>Data Anggota</span>
+        <i class="fas fa-users-cog w-5 text-center text-slate-400"></i>
+        <span>Validasi & Anggota</span>
     </a>
     <a href="{{ route('bendahara.barang.index') }}" class="sidebar-link {{ request()->routeIs('bendahara.barang.*') ? 'active' : '' }} flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm text-slate-700">
         <i class="fas fa-box w-5 text-center text-slate-400"></i>

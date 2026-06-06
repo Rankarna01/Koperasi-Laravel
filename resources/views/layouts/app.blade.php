@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Koperasi Sejahtera Bersama')</title>
+    <title>@yield('title', \App\Models\Setting::get('app_name', 'Koperasi Sejahtera Bersama'))</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -46,8 +46,8 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.tailwindcss.min.css">
 
     <style>
-        * { font-family: 'Inter', 'Poppins', sans-serif; }
-        h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Poppins', sans-serif; }
+        * { font-family: 'Poppins', sans-serif; }
+        h1, h2, h3, h4, h5, h6, .font-heading { font-family: 'Poppins', sans-serif; font-weight: 600; }
 
         /* Scrollbar Custom */
         ::-webkit-scrollbar { width: 6px; height: 6px; }

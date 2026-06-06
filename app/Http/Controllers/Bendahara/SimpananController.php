@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Bendahara;
 use App\Http\Controllers\Controller;
 use App\Models\Anggota;
 use App\Models\Simpanan;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class SimpananController extends Controller
@@ -29,11 +30,29 @@ class SimpananController extends Controller
         return datatables()->of($query)
             ->editColumn('nominal', fn($row) => 'Rp ' . number_format($row->nominal, 0, ',', '.'))
             ->editColumn('tanggal', fn($row) => $row->tanggal->format('d/m/Y'))
-            ->addColumn('jenis_label', fn($row) => $row->label_jenis)
-            ->addColumn('action', function ($row) {
-                return '<button class="btn-print bg-gray-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-gray-600 transition" data-id="' . $row->id . '"><i class="fas fa-print"></i></button>';
+            ->addColumn('jenis_label', function ($row) {
+                $colors = [
+                    'pokok' => 'bg-purple-100 text-purple-700 border-purple-200',
+                    'wajib' => 'bg-blue-100 text-blue-700 border-blue-200',
+                    'sukarela' => 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                    'deposito' => 'bg-amber-100 text-amber-700 border-amber-200',
+                ];
+                $icons = [
+                    'pokok' => 'fa-gem',
+                    'wajib' => 'fa-calendar-check',
+                    'sukarela' => 'fa-heart',
+                    'deposito' => 'fa-vault',
+                ];
+                $color = $colors[$row->jenis] ?? 'bg-slate-100 text-slate-700 border-slate-200';
+                $icon = $icons[$row->jenis] ?? 'fa-coins';
+                return '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-full border ' . $color . '"><i class="fas ' . $icon . ' text-[10px]"></i> ' . $row->label_jenis . '</span>';
             })
-            ->rawColumns(['action'])
+            ->addColumn('action', function ($row) {
+                return '<div class="flex items-center justify-center">
+                    <button class="btn-print w-8 h-8 inline-flex items-center justify-center rounded-lg bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-200 transition" data-id="' . $row->id . '" title="Cetak Kwitansi"><i class="fas fa-print text-xs"></i></button>
+                </div>';
+            })
+            ->rawColumns(['action', 'jenis_label'])
             ->make(true);
     }
 
@@ -62,5 +81,13 @@ class SimpananController extends Controller
             'message' => 'Simpanan berhasil ditambahkan.',
             'data' => $simpanan,
         ]);
+    }
+
+    public function print(Simpanan $simpanan)
+    {
+        $simpanan->load('anggota', 'creator');
+        $pdf = Pdf::loadView('bendahara.simpanan.print', compact('simpanan'));
+        $pdf->setPaper([0, 0, 226.77, 600], 'portrait'); // 80mm width receipt
+        return $pdf->stream('kwitansi-' . $simpanan->no_transaksi . '.pdf');
     }
 }

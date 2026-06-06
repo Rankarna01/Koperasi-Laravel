@@ -23,16 +23,21 @@
 </div>
 
 <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+    <div class="p-5 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white flex justify-between items-center">
+        <h3 class="font-bold text-slate-700 text-sm flex items-center gap-2">
+            <i class="fas fa-truck-loading text-primary-500"></i> Riwayat Pembelian
+        </h3>
+    </div>
     <div class="p-5">
         <table id="dataTable" class="w-full text-left border-collapse" style="width:100%">
             <thead>
-                <tr class="text-xs text-slate-500 uppercase tracking-wider bg-slate-50">
-                    <th class="px-4 py-3 rounded-l-lg font-medium">Tanggal</th>
-                    <th class="px-4 py-3 font-medium">No. Nota</th>
-                    <th class="px-4 py-3 font-medium">Supplier</th>
-                    <th class="px-4 py-3 font-medium text-right">Total Transaksi</th>
-                    <th class="px-4 py-3 font-medium text-center">Status</th>
-                    <th class="px-4 py-3 rounded-r-lg font-medium text-center">Aksi</th>
+                <tr class="text-xs text-slate-500 uppercase tracking-wider">
+                    <th class="px-4 py-3.5 font-semibold bg-slate-50 rounded-l-xl border-b-2 border-slate-200">Tanggal</th>
+                    <th class="px-4 py-3.5 font-semibold bg-slate-50 border-b-2 border-slate-200">No. Nota</th>
+                    <th class="px-4 py-3.5 font-semibold bg-slate-50 border-b-2 border-slate-200">Supplier</th>
+                    <th class="px-4 py-3.5 font-semibold bg-slate-50 border-b-2 border-slate-200 text-right">Total Transaksi</th>
+                    <th class="px-4 py-3.5 font-semibold bg-slate-50 border-b-2 border-slate-200 text-center">Status</th>
+                    <th class="px-4 py-3.5 font-semibold bg-slate-50 rounded-r-xl border-b-2 border-slate-200 text-center" style="width:100px">Aksi</th>
                 </tr>
             </thead>
         </table>
@@ -144,7 +149,11 @@
                 {data: 'status_badge', name: 'status_badge', orderable: false, searchable: false, className: 'text-center'},
                 {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center'},
             ],
-            language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/id.json' },
+            language: { search: "Cari:", lengthMenu: "_MENU_", info: "_START_ - _END_ dari _TOTAL_", infoEmpty: "0 data", zeroRecords: "Tidak ada data" },
+            dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-4"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4"ip>',
+            drawCallback: function() {
+                $('.dataTables_paginate > .pagination').addClass('flex items-center gap-1');
+            },
             order: [[0, 'desc']]
         });
 

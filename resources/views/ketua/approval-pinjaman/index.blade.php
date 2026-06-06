@@ -135,11 +135,12 @@
                 {data: 'status_badge', name: 'status_badge', orderable: false, searchable: false, className: 'text-center'},
                 {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center'},
             ],
-            language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/id.json' },
+            language: { search: "Cari:", lengthMenu: "Tampilkan _MENU_ data", info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data", infoEmpty: "Menampilkan 0 sampai 0 dari 0 data", infoFiltered: "(disaring dari _MAX_ data)", zeroRecords: "Tidak ada data", paginate: { next: "Selanjutnya", previous: "Sebelumnya" } },
             dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-4"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4"ip>',
             drawCallback: function() {
                 $('.dataTables_paginate > .pagination').addClass('flex items-center gap-1');
-            }
+            },
+            order: [[0, 'desc']]
         });
 
         $('#filterStatus').change(function(){

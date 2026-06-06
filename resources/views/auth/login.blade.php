@@ -6,12 +6,16 @@
 <div class="min-h-screen bg-slate-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
     <div class="sm:mx-auto sm:w-full sm:max-w-md page-enter">
         <div class="flex justify-center">
-            <div class="w-16 h-16 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30">
-                <i class="fas fa-building-columns text-white text-3xl"></i>
-            </div>
+            @if(\App\Models\Setting::get('app_logo'))
+                <img src="{{ asset('storage/' . \App\Models\Setting::get('app_logo')) }}" alt="Logo" class="w-20 h-20 object-cover rounded-2xl shadow-lg shadow-primary-500/30">
+            @else
+                <div class="w-16 h-16 bg-primary-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30">
+                    <i class="fas fa-building-columns text-white text-3xl"></i>
+                </div>
+            @endif
         </div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-slate-900 font-heading tracking-tight">
-            Koperasi <span class="text-gradient">Sejahtera</span>
+            {{ \App\Models\Setting::get('app_name', 'Koperasi Sejahtera') }}
         </h2>
         <p class="mt-2 text-center text-sm text-slate-600">
             Sistem Informasi Koperasi Simpan Pinjam & Penjualan

@@ -6,11 +6,15 @@
     <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-slate-200 transform transition-transform duration-300 lg:translate-x-0 lg:static lg:inset-auto -translate-x-full">
         <!-- Logo -->
         <div class="flex items-center gap-3 px-6 py-5 border-b border-slate-100">
-            <div class="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center">
-                <i class="fas fa-building-columns text-white text-lg"></i>
-            </div>
+            @if(\App\Models\Setting::get('app_logo'))
+                <img src="{{ asset('storage/' . \App\Models\Setting::get('app_logo')) }}" alt="Logo" class="w-10 h-10 object-cover rounded-xl">
+            @else
+                <div class="w-10 h-10 bg-primary-600 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-building-columns text-white text-lg"></i>
+                </div>
+            @endif
             <div>
-                <h1 class="font-poppins font-bold text-primary-600 text-sm leading-tight">KOPKAR</h1>
+                <h1 class="font-poppins font-bold text-primary-600 text-sm leading-tight">{{ \App\Models\Setting::get('app_name', 'KOPKAR') }}</h1>
                 <p class="text-[10px] text-slate-400 leading-tight">Sejahtera Bersama</p>
             </div>
         </div>

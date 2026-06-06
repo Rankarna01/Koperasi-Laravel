@@ -27,10 +27,24 @@ class AngsuranController extends Controller
             ->editColumn('nominal', fn($row) => 'Rp ' . number_format($row->nominal, 0, ',', '.'))
             ->editColumn('tanggal_bayar', fn($row) => $row->tanggal_bayar->format('d/m/Y'))
             ->addColumn('anggota_nama', fn($row) => $row->peminjaman->anggota->nama_lengkap)
-            ->addColumn('action', function ($row) {
-                return '<button class="btn-print bg-gray-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-gray-600 transition" data-id="' . $row->id . '"><i class="fas fa-print"></i></button>';
+            ->addColumn('status', function ($row) {
+                if ($row->status === 'berhasil') {
+                    return '<span class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">Selesai</span>';
+                } elseif ($row->status === 'pending') {
+                    return '<span class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-amber-100 text-amber-700 border border-amber-200">Menunggu (Midtrans)</span>';
+                }
+                return '<span class="px-2.5 py-1 text-[11px] font-bold rounded-full bg-red-100 text-red-700 border border-red-200">Gagal</span>';
             })
-            ->rawColumns(['action'])
+            ->addColumn('action', function ($row) {
+                $btn = '<div class="flex items-center justify-center gap-1.5">';
+                $btn .= '<button class="btn-detail w-8 h-8 inline-flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition" data-id="' . $row->id . '" title="Detail"><i class="fas fa-eye text-xs"></i></button>';
+                if ($row->status === 'berhasil') {
+                    $btn .= '<button class="btn-print w-8 h-8 inline-flex items-center justify-center rounded-lg bg-slate-50 text-slate-500 hover:bg-slate-100 border border-slate-200 transition" data-id="' . $row->id . '" title="Cetak Kwitansi"><i class="fas fa-print text-xs"></i></button>';
+                }
+                $btn .= '</div>';
+                return $btn;
+            })
+            ->rawColumns(['action', 'status'])
             ->make(true);
     }
 
@@ -40,7 +54,6 @@ class AngsuranController extends Controller
             'peminjaman_id' => 'required|exists:peminjaman,id',
             'nominal' => 'required|numeric|min:1000',
             'tanggal_bayar' => 'required|date',
-            'metode_pembayaran' => 'required|in:tunai,transfer,qris',
             'keterangan' => 'nullable|string',
         ]);
 
@@ -53,8 +66,9 @@ class AngsuranController extends Controller
             'angsuran_ke' => $angsuranKe,
             'nominal' => $request->nominal,
             'tanggal_bayar' => $request->tanggal_bayar,
-            'metode_pembayaran' => $request->metode_pembayaran,
+            'metode_pembayaran' => 'tunai', // Fixed tunai for Bendahara
             'keterangan' => $request->keterangan,
+            'status' => 'berhasil',
             'created_by' => auth()->id(),
         ]);
 
@@ -70,6 +84,15 @@ class AngsuranController extends Controller
             'success' => true,
             'message' => 'Angsuran ke-' . $angsuranKe . ' berhasil dicatat.',
             'data' => $angsuran,
+        ]);
+    }
+
+    public function show($id)
+    {
+        $angsuran = Angsuran::with('peminjaman.anggota', 'creator')->findOrFail($id);
+        return response()->json([
+            'success' => true,
+            'data' => $angsuran
         ]);
     }
 }

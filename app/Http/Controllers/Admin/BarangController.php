@@ -1,19 +1,24 @@
 <?php
 
-namespace App\Http\Controllers\Bendahara;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Barang;
 use App\Models\BarangMasuk;
 use App\Models\KategoriBarang;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class BarangController extends Controller
 {
     public function index()
     {
         $kategoriList = KategoriBarang::all();
-        return view('bendahara.barang.index', compact('kategoriList'));
+        $supplierList = Supplier::all();
+        return view('admin.barang.index', compact('kategoriList', 'supplierList'));
     }
 
     public function data(Request $request)

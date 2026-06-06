@@ -110,24 +110,27 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="text-xs text-slate-400 border-b border-slate-100">
-                        <th class="pb-2 font-medium">Nota / Tgl</th>
-                        <th class="pb-2 font-medium">Total</th>
-                        <th class="pb-2 font-medium">Kasir</th>
+                        <th class="pb-2 font-medium">Periode</th>
+                        <th class="pb-2 font-medium">Omset</th>
+                        <th class="pb-2 font-medium">Admin</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm">
+                    @php
+                        $bulanIndo = [1=>'Januari',2=>'Februari',3=>'Maret',4=>'April',5=>'Mei',6=>'Juni',7=>'Juli',8=>'Agustus',9=>'September',10=>'Oktober',11=>'November',12=>'Desember'];
+                    @endphp
                     @forelse($penjualan_terbaru as $p)
                         <tr class="border-b border-slate-50 hover:bg-slate-50 transition">
                             <td class="py-3">
-                                <p class="font-semibold text-slate-700">{{ $p->no_nota }}</p>
-                                <p class="text-xs text-slate-400">{{ $p->tanggal->format('d M Y') }}</p>
+                                <p class="font-semibold text-slate-700">Rekap Bulanan</p>
+                                <p class="text-xs text-slate-400">{{ $bulanIndo[$p->bulan] }} {{ $p->tahun }}</p>
                             </td>
-                            <td class="py-3 font-semibold text-primary-600">Rp {{ number_format($p->total, 0, ',', '.') }}</td>
-                            <td class="py-3 text-slate-600">{{ $p->creator->name }}</td>
+                            <td class="py-3 font-semibold text-primary-600">Rp {{ number_format($p->total_omset, 0, ',', '.') }}</td>
+                            <td class="py-3 text-slate-600">{{ $p->creator->name ?? 'Sistem' }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="py-4 text-center text-slate-400 text-sm">Tidak ada transaksi.</td>
+                            <td colspan="3" class="py-4 text-center text-slate-400 text-sm">Tidak ada data rekap.</td>
                         </tr>
                     @endforelse
                 </tbody>

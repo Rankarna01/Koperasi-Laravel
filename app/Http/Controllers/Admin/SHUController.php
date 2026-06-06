@@ -40,14 +40,8 @@ class SHUController extends Controller
                 ->whereYear('tanggal_pengajuan', $tahun)
                 ->sum('total_bunga');
 
-            // 2. Hitung laba penjualan
-            $labaPenjualan = DB::table('penjualan_detail')
-                ->join('barang', 'penjualan_detail.barang_id', '=', 'barang.id')
-                ->join('penjualan', 'penjualan_detail.penjualan_id', '=', 'penjualan.id')
-                ->where('penjualan.status', 'selesai')
-                ->whereYear('penjualan.tanggal', $tahun)
-                ->selectRaw('SUM((penjualan_detail.harga_jual - barang.harga_beli) * penjualan_detail.jumlah) as laba')
-                ->value('laba') ?? 0;
+            // 2. Hitung laba penjualan (dari rekap penjualan bulanan)
+            $labaPenjualan = Penjualan::where('tahun', $tahun)->sum('total_laba');
 
             $totalPendapatan = $totalBungaPinjaman + $labaPenjualan;
             $totalBiaya = $totalPendapatan * 0.2; // Estimasi biaya operasional 20%
@@ -75,10 +69,7 @@ class SHUController extends Controller
             // Total kontribusi semua anggota
             $totalKontribusiSimpanan = Simpanan::whereYear('tanggal', $tahun)->sum('nominal');
             $totalKontribusiPinjaman = $totalBungaPinjaman;
-            $totalKontribusiPenjualan = Penjualan::where('status', 'selesai')
-                ->whereYear('tanggal', $tahun)
-                ->whereNotNull('anggota_id')
-                ->sum('total');
+            $totalKontribusiPenjualan = 0; // Tidak lagi berdasarkan pembelian anggota individu
 
             foreach ($anggotaAktif as $anggota) {
                 // Kontribusi simpanan per anggota
@@ -92,21 +83,13 @@ class SHUController extends Controller
                     ->whereYear('tanggal_pengajuan', $tahun)
                     ->sum('total_bunga');
 
-                // Kontribusi pembelian di toko
-                $penjualanAnggota = Penjualan::where('anggota_id', $anggota->id)
-                    ->where('status', 'selesai')
-                    ->whereYear('tanggal', $tahun)
-                    ->sum('total');
-
-                // Hitung proporsi (40% simpanan, 30% pinjaman, 30% penjualan)
+                // Proporsi dari Simpanan (60%) dan Pinjaman (40%) - Karena porsi penjualan individu dihapus
                 $proporsiSimpanan = $totalKontribusiSimpanan > 0 ? ($simpananAnggota / $totalKontribusiSimpanan) : 0;
                 $proporsiPinjaman = $totalKontribusiPinjaman > 0 ? ($bungaAnggota / $totalKontribusiPinjaman) : 0;
-                $proporsiPenjualan = $totalKontribusiPenjualan > 0 ? ($penjualanAnggota / $totalKontribusiPenjualan) : 0;
 
                 $shuAnggota = $danaAnggota * (
-                    ($proporsiSimpanan * 0.4) +
-                    ($proporsiPinjaman * 0.3) +
-                    ($proporsiPenjualan * 0.3)
+                    ($proporsiSimpanan * 0.6) +
+                    ($proporsiPinjaman * 0.4)
                 );
 
                 ShuAnggota::create([
@@ -114,7 +97,7 @@ class SHUController extends Controller
                     'anggota_id' => $anggota->id,
                     'kontribusi_simpanan' => $simpananAnggota,
                     'kontribusi_pinjaman' => $bungaAnggota,
-                    'kontribusi_penjualan' => $penjualanAnggota,
+                    'kontribusi_penjualan' => 0,
                     'total_shu' => $shuAnggota,
                 ]);
             }

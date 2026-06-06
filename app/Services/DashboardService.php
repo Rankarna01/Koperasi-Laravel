@@ -22,7 +22,7 @@ class DashboardService
         $totalAnggota = Anggota::aktif()->count();
         $totalSimpanan = Simpanan::sum('nominal');
         $totalPinjamanAktif = Peminjaman::where('status', 'disetujui')->sum('nominal');
-        $totalPenjualan = Penjualan::where('status', 'selesai')->sum('total');
+        $totalPenjualan = Penjualan::sum('total_omset');
 
         // Hitung estimasi SHU
         $totalBungaPinjaman = Peminjaman::whereIn('status', ['disetujui', 'lunas'])->sum('total_bunga');
@@ -34,7 +34,12 @@ class DashboardService
         $anggotaBulanLalu = Anggota::aktif()->where('created_at', '<', $bulanLalu)->count();
         $simpananBulanLalu = Simpanan::where('tanggal', '<', $bulanLalu)->sum('nominal');
         $pinjamanBulanLalu = Peminjaman::where('status', 'disetujui')->where('created_at', '<', $bulanLalu)->sum('nominal');
-        $penjualanBulanLalu = Penjualan::where('status', 'selesai')->where('tanggal', '<', $bulanLalu)->sum('total');
+        $penjualanBulanLalu = Penjualan::where(function($q) use ($bulanLalu) {
+            $q->where('tahun', '<', $bulanLalu->year)
+              ->orWhere(function($q2) use ($bulanLalu) {
+                  $q2->where('tahun', $bulanLalu->year)->where('bulan', '<', $bulanLalu->month);
+              });
+        })->sum('total_omset');
 
         // Pending approvals
         $pendingAnggota = Anggota::menungguApproval()->with('user')->latest()->get();
@@ -125,21 +130,15 @@ class DashboardService
     public function getAdminDashboard(): array
     {
         $totalPembelian = DB::table('pembelian')->where('status', 'selesai')->sum('total');
-        $totalPenjualan = Penjualan::where('status', 'selesai')->sum('total');
+        $totalPenjualan = Penjualan::sum('total_omset');
         $labaKotor = $this->hitungLabaPenjualan();
         $totalAnggota = Anggota::aktif()->count();
 
         $totalBungaPinjaman = Peminjaman::whereIn('status', ['disetujui', 'lunas'])->sum('total_bunga');
         $estimasiShu = $totalBungaPinjaman + $labaKotor;
 
-        // Penjualan terlaris
-        $topSelling = DB::table('penjualan_detail')
-            ->join('barang', 'penjualan_detail.barang_id', '=', 'barang.id')
-            ->select('barang.nama', DB::raw('SUM(penjualan_detail.jumlah) as total_terjual'), DB::raw('SUM(penjualan_detail.subtotal) as total_pendapatan'))
-            ->groupBy('barang.id', 'barang.nama')
-            ->orderByDesc('total_terjual')
-            ->take(5)
-            ->get();
+        // Penjualan terlaris (dihapus karena tidak ada pencatatan per item lagi)
+        $topSelling = collect([]);
 
         // Ringkasan stok
         $stokAman = Barang::active()->whereColumn('stok', '>', 'stok_minimal')->count();
@@ -156,7 +155,8 @@ class DashboardService
             ->get();
 
         $penjualanTerbaru = Penjualan::with('creator')
-            ->orderByDesc('tanggal')
+            ->orderByDesc('tahun')
+            ->orderByDesc('bulan')
             ->take(5)
             ->get();
 
@@ -262,16 +262,14 @@ class DashboardService
             $date = Carbon::now()->subMonths($i);
             $labels[] = $date->translatedFormat('M Y');
 
-            $penjualanData[] = Penjualan::where('status', 'selesai')
-                ->whereMonth('tanggal', $date->month)
-                ->whereYear('tanggal', $date->year)
-                ->sum('total');
+            $penjualanData[] = Penjualan::where('bulan', $date->month)
+                ->where('tahun', $date->year)
+                ->sum('total_omset');
 
             // Simplified laba calculation
-            $labaData[] = Penjualan::where('status', 'selesai')
-                ->whereMonth('tanggal', $date->month)
-                ->whereYear('tanggal', $date->year)
-                ->sum('total') * 0.25; // Estimated 25% margin
+            $labaData[] = Penjualan::where('bulan', $date->month)
+                ->where('tahun', $date->year)
+                ->sum('total_laba');
         }
 
         return [
@@ -360,11 +358,6 @@ class DashboardService
      */
     private function hitungLabaPenjualan(): float
     {
-        return DB::table('penjualan_detail')
-            ->join('barang', 'penjualan_detail.barang_id', '=', 'barang.id')
-            ->join('penjualan', 'penjualan_detail.penjualan_id', '=', 'penjualan.id')
-            ->where('penjualan.status', 'selesai')
-            ->selectRaw('SUM((penjualan_detail.harga_jual - barang.harga_beli) * penjualan_detail.jumlah) as laba')
-            ->value('laba') ?? 0;
+        return (float) Penjualan::sum('total_laba');
     }
 }

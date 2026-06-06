@@ -13,6 +13,9 @@ use App\Http\Controllers\Anggota;
 |--------------------------------------------------------------------------
 */
 
+// Webhook
+Route::post('/webhook/midtrans', [\App\Http\Controllers\Webhook\MidtransController::class, 'handling']);
+
 // ===========================
 // AUTH ROUTES
 // ===========================
@@ -67,8 +70,13 @@ Route::middleware(['auth', 'role:ketua'])->prefix('ketua')->name('ketua.')->grou
     Route::post('/approval-pinjaman/{peminjaman}/reject', [Ketua\ApprovalPinjamanController::class, 'reject'])->name('approval-pinjaman.reject');
 
     // Laporan
-    Route::view('/laporan/simpan-pinjam', 'ketua.laporan.simpan-pinjam')->name('laporan.simpan-pinjam');
-    Route::view('/laporan/penjualan', 'ketua.laporan.penjualan')->name('laporan.penjualan');
+    Route::get('/laporan/simpan-pinjam', [Ketua\LaporanController::class, 'simpanPinjam'])->name('laporan.simpan-pinjam');
+    Route::get('/laporan/simpan-pinjam/data', [Ketua\LaporanController::class, 'simpanPinjamData'])->name('laporan.simpan-pinjam.data');
+    Route::get('/laporan/simpan-pinjam/export/{type}', [Ketua\LaporanController::class, 'exportSimpanPinjam'])->name('laporan.simpan-pinjam.export');
+    
+    Route::get('/laporan/penjualan', [Ketua\LaporanController::class, 'penjualan'])->name('laporan.penjualan');
+    Route::get('/laporan/penjualan/data', [Ketua\LaporanController::class, 'penjualanData'])->name('laporan.penjualan.data');
+    Route::get('/laporan/penjualan/export/{type}', [Ketua\LaporanController::class, 'exportPenjualan'])->name('laporan.penjualan.export');
 });
 
 // ===========================
@@ -87,6 +95,7 @@ Route::middleware(['auth', 'role:bendahara'])->prefix('bendahara')->name('bendah
     Route::get('/simpanan', [Bendahara\SimpananController::class, 'index'])->name('simpanan.index');
     Route::get('/simpanan/data', [Bendahara\SimpananController::class, 'data'])->name('simpanan.data');
     Route::post('/simpanan', [Bendahara\SimpananController::class, 'store'])->name('simpanan.store');
+    Route::get('/simpanan/{simpanan}/print', [Bendahara\SimpananController::class, 'print'])->name('simpanan.print');
 
     // Pinjaman
     Route::get('/pinjaman', [Bendahara\PeminjamanController::class, 'index'])->name('pinjaman.index');
@@ -98,6 +107,7 @@ Route::middleware(['auth', 'role:bendahara'])->prefix('bendahara')->name('bendah
     Route::get('/angsuran', [Bendahara\AngsuranController::class, 'index'])->name('angsuran.index');
     Route::get('/angsuran/data', [Bendahara\AngsuranController::class, 'data'])->name('angsuran.data');
     Route::post('/angsuran', [Bendahara\AngsuranController::class, 'store'])->name('angsuran.store');
+    Route::get('/angsuran/{angsuran}', [Bendahara\AngsuranController::class, 'show'])->name('angsuran.show');
 
     // Barang
     Route::get('/barang', [Bendahara\BarangController::class, 'index'])->name('barang.index');
@@ -113,13 +123,33 @@ Route::middleware(['auth', 'role:bendahara'])->prefix('bendahara')->name('bendah
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [Admin\DashboardController::class, 'index'])->name('dashboard');
 
-    // Penjualan
+    // Rekap Penjualan Bulanan
     Route::get('/penjualan', [Admin\PenjualanController::class, 'index'])->name('penjualan.index');
     Route::get('/penjualan/data', [Admin\PenjualanController::class, 'data'])->name('penjualan.data');
-    Route::get('/penjualan/kasir', [Admin\PenjualanController::class, 'kasir'])->name('penjualan.kasir');
-    Route::get('/penjualan/search-barang', [Admin\PenjualanController::class, 'searchBarang'])->name('penjualan.search-barang');
     Route::post('/penjualan', [Admin\PenjualanController::class, 'store'])->name('penjualan.store');
     Route::get('/penjualan/{penjualan}', [Admin\PenjualanController::class, 'show'])->name('penjualan.show');
+    Route::put('/penjualan/{penjualan}', [Admin\PenjualanController::class, 'update'])->name('penjualan.update');
+    Route::delete('/penjualan/{penjualan}', [Admin\PenjualanController::class, 'destroy'])->name('penjualan.destroy');
+
+    // Data Barang (Sama dengan bendahara)
+    Route::get('/barang', [Admin\BarangController::class, 'index'])->name('barang.index');
+    Route::get('/barang/data', [Admin\BarangController::class, 'data'])->name('barang.data');
+    Route::post('/barang', [Admin\BarangController::class, 'store'])->name('barang.store');
+    Route::get('/barang/{barang}', [Admin\BarangController::class, 'show'])->name('barang.show');
+    Route::put('/barang/{barang}', [Admin\BarangController::class, 'update'])->name('barang.update');
+    Route::delete('/barang/{barang}', [Admin\BarangController::class, 'destroy'])->name('barang.destroy');
+
+    // Data Supplier
+    Route::get('/supplier', [Admin\SupplierController::class, 'index'])->name('supplier.index');
+    Route::get('/supplier/data', [Admin\SupplierController::class, 'data'])->name('supplier.data');
+    Route::post('/supplier', [Admin\SupplierController::class, 'store'])->name('supplier.store');
+    Route::get('/supplier/{supplier}', [Admin\SupplierController::class, 'show'])->name('supplier.show');
+    Route::put('/supplier/{supplier}', [Admin\SupplierController::class, 'update'])->name('supplier.update');
+    Route::delete('/supplier/{supplier}', [Admin\SupplierController::class, 'destroy'])->name('supplier.destroy');
+
+    // Pengaturan Sistem
+    Route::get('/setting', [Admin\SettingController::class, 'index'])->name('setting.index');
+    Route::post('/setting', [Admin\SettingController::class, 'update'])->name('setting.update');
 
     // Pembelian
     Route::get('/pembelian', [Admin\PembelianBarangController::class, 'index'])->name('pembelian.index');

@@ -3,7 +3,7 @@
 @section('title', 'Data Barang')
 
 @section('breadcrumb')
-    <a href="{{ route('bendahara.dashboard') }}" class="text-slate-500 hover:text-primary-600">Dashboard</a>
+    <a href="{{ route('admin.dashboard') }}" class="text-slate-500 hover:text-primary-600">Dashboard</a>
     <i class="fas fa-chevron-right mx-2 text-xs text-slate-300"></i>
     <span class="text-primary-600 font-medium">Data Barang</span>
 @endsection
@@ -238,7 +238,7 @@
         table = $('#dataTable').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('bendahara.barang.data') }}",
+            ajax: "{{ route('admin.barang.data') }}",
             columns: [
                 {
                     data: 'nama', name: 'nama', 
@@ -318,7 +318,7 @@
         }
 
         const id = $('#id').val();
-        const url = id ? `/bendahara/barang/${id}` : `{{ route('bendahara.barang.store') }}`;
+        const url = id ? `/bendahara/barang/${id}` : `{{ route('admin.barang.store') }}`;
         let data = $('#mainForm').serialize();
         if(id) data += '&_method=PUT';
 

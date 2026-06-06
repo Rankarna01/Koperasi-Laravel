@@ -6,10 +6,13 @@
     <title>@yield('title', 'Koperasi Sejahtera')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- DataTables -->
+    <link href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css" rel="stylesheet">
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    
     
     <script>
         tailwind.config = {
@@ -107,10 +110,14 @@
                 @yield('header-left')
             @else
                 <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white text-sm">
-                        <i class="fas fa-building-columns"></i>
-                    </div>
-                    <span class="font-bold text-slate-800 text-lg">KOPKAR</span>
+                    @if(\App\Models\Setting::get('app_logo'))
+                        <img src="{{ asset('storage/' . \App\Models\Setting::get('app_logo')) }}" alt="Logo" class="w-8 h-8 object-cover rounded-lg">
+                    @else
+                        <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white text-sm">
+                            <i class="fas fa-building-columns"></i>
+                        </div>
+                    @endif
+                    <span class="font-bold text-slate-800 text-lg">{{ \App\Models\Setting::get('app_name', 'KOPKAR') }}</span>
                 </div>
             @endif
 
@@ -170,6 +177,19 @@
 
         function showToast(icon, title) {
             Toast.fire({ icon: icon, title: title });
+        }
+        
+        function showLoading() {
+            Swal.fire({
+                title: 'Mohon Tunggu...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+        }
+        function hideLoading() {
+            Swal.close();
         }
         
         @if(session('success')) showToast('success', '{{ session('success') }}'); @endif

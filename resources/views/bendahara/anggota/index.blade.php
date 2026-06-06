@@ -17,7 +17,6 @@
     
     <div class="flex gap-2">
         <select id="filterStatus" class="bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 shadow-sm">
-            <option value="">Semua Status</option>
             <option value="menunggu_bendahara">Perlu Verifikasi Saya</option>
             <option value="menunggu_ketua">Menunggu ACC Ketua</option>
             <option value="aktif">Aktif</option>
@@ -139,10 +138,12 @@
                 {data: 'status_badge', name: 'status_badge', orderable: false, searchable: false, className: 'py-4'},
                 {data: 'action', name: 'action', orderable: false, searchable: false, className: 'text-center py-4'},
             ],
-            language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/id.json' },
+            language: { search: "Cari:", lengthMenu: "Tampilkan _MENU_ data", info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data", infoEmpty: "Menampilkan 0 sampai 0 dari 0 data", infoFiltered: "(disaring dari _MAX_ data)", zeroRecords: "Tidak ada data", paginate: { next: "Selanjutnya", previous: "Sebelumnya" } },
+            dom: '<"flex flex-col md:flex-row justify-between items-center mb-4 gap-4"lf>rt<"flex flex-col md:flex-row justify-between items-center mt-4 gap-4"ip>',
             drawCallback: function() {
-                $('.dataTables_paginate > .pagination').addClass('flex items-center gap-1 mt-4');
-            }
+                $('.dataTables_paginate > .pagination').addClass('flex items-center gap-1');
+            },
+            order: [[0, 'desc']]
         });
 
         $('#filterStatus').change(function(){
@@ -191,16 +192,29 @@
                 didOpen: () => {
                     $.get(`/bendahara/anggota/${id}`, function(res) {
                         const a = res.data;
+                        let buktiHtml = '<p class="text-slate-400 italic text-xs">Belum ada bukti pembayaran</p>';
+                        if (a.bukti_pembayaran) {
+                            const buktiUrl = '/storage/' + a.bukti_pembayaran;
+                            buktiHtml = `<a href="${buktiUrl}" target="_blank" class="block border border-slate-200 rounded-xl overflow-hidden hover:opacity-90 transition"><img src="${buktiUrl}" alt="Bukti Pembayaran" class="w-full h-auto object-contain max-h-48 bg-slate-100"></a><p class="text-[10px] text-slate-400 mt-1 italic">*Klik gambar untuk melihat ukuran penuh</p>`;
+                        }
                         Swal.fire({
                             title: 'Profil Anggota',
                             html: `
-                                <div class="text-left text-sm space-y-2">
-                                    <p><strong>Nama:</strong> ${a.nama_lengkap}</p>
-                                    <p><strong>NIK:</strong> ${a.nik}</p>
-                                    <p><strong>Alamat:</strong> ${a.alamat}</p>
-                                    <p><strong>Pekerjaan:</strong> ${a.pekerjaan}</p>
+                                <div class="text-left text-sm space-y-3">
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div class="bg-slate-50 p-3 rounded-xl"><p class="text-xs text-slate-500 mb-1">Nama Lengkap</p><p class="font-semibold text-slate-800">${a.nama_lengkap}</p></div>
+                                        <div class="bg-slate-50 p-3 rounded-xl"><p class="text-xs text-slate-500 mb-1">NIK</p><p class="font-semibold text-slate-800 font-mono text-xs">${a.nik}</p></div>
+                                        <div class="bg-slate-50 p-3 rounded-xl"><p class="text-xs text-slate-500 mb-1">Pekerjaan</p><p class="font-semibold text-slate-800">${a.pekerjaan || '-'}</p></div>
+                                        <div class="bg-slate-50 p-3 rounded-xl"><p class="text-xs text-slate-500 mb-1">No. Telepon</p><p class="font-semibold text-slate-800">${a.no_telepon || '-'}</p></div>
+                                    </div>
+                                    <div class="bg-slate-50 p-3 rounded-xl"><p class="text-xs text-slate-500 mb-1">Alamat</p><p class="font-semibold text-slate-800">${a.alamat || '-'}</p></div>
+                                    <div class="border-t border-slate-200 pt-3">
+                                        <p class="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Bukti Pembayaran Pendaftaran</p>
+                                        ${buktiHtml}
+                                    </div>
                                 </div>
                             `,
+                            width: 520,
                             confirmButtonColor: '#2563eb'
                         });
                     });
