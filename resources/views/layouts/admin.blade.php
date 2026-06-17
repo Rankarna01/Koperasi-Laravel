@@ -33,27 +33,20 @@
         </nav>
 
         <!-- User Profile (Bottom) -->
-        <div class="border-t border-slate-100 p-4">
-            <div class="flex items-center gap-3">
-                <img src="{{ auth()->user()->avatar_url }}" alt="Avatar" class="w-10 h-10 rounded-full object-cover border-2 border-primary-100">
+        <div class="border-t border-slate-100 p-4 bg-slate-50 mt-auto">
+            <div class="flex items-center gap-3 mb-4">
+                <img src="{{ auth()->user()->avatar_url }}" alt="Avatar" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm">
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-semibold text-slate-800 truncate">{{ auth()->user()->name }}</p>
-                    <p class="text-xs text-slate-400 capitalize">{{ auth()->user()->role }}</p>
-                </div>
-                <div class="relative" x-data="{ open: false }">
-                    <button onclick="this.nextElementSibling.classList.toggle('hidden')" class="text-slate-400 hover:text-slate-600">
-                        <i class="fas fa-chevron-down text-xs"></i>
-                    </button>
-                    <div class="hidden absolute bottom-full right-0 mb-2 w-36 bg-white rounded-lg shadow-lg border border-slate-100 py-1">
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
-                                <i class="fas fa-sign-out-alt"></i> Keluar
-                            </button>
-                        </form>
-                    </div>
+                    <p class="text-sm font-bold text-slate-800 truncate">{{ auth()->user()->name }}</p>
+                    <p class="text-xs text-slate-500 capitalize font-medium">{{ auth()->user()->role }}</p>
                 </div>
             </div>
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-red-200 text-red-600 rounded-xl hover:bg-red-50 hover:border-red-300 font-bold transition-all text-sm shadow-sm">
+                    <i class="fas fa-power-off"></i> Keluar Sistem
+                </button>
+            </form>
         </div>
     </aside>
 

@@ -1,6 +1,6 @@
 <div class="space-y-1">
     <a href="{{ route('ketua.dashboard') }}" class="sidebar-link {{ request()->routeIs('ketua.dashboard') ? 'active' : '' }} flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm text-slate-700">
-        <i class="fas fa-grid-2 w-5 text-center"></i>
+        <i class="fas fa-house w-5 text-center {{ request()->routeIs('ketua.dashboard') ? '' : 'text-slate-400' }}"></i>
         <span>Dashboard</span>
     </a>
     
