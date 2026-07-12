@@ -22,6 +22,24 @@
     </div>
 </div>
 
+@if($setorMenunggu > 0)
+<a href="{{ route('bendahara.setor_simpanan.index') }}" class="block mb-4">
+    <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-4 hover:shadow-md transition-all cursor-pointer">
+        <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-bell text-amber-500 text-xl"></i>
+        </div>
+        <div class="flex-1">
+            <p class="text-sm font-bold text-slate-800">Setor Simpanan Menunggu Verifikasi</p>
+            <p class="text-xs text-slate-500 mt-0.5">Ada <span class="font-bold text-amber-600">{{ $setorMenunggu }}</span> setor simpanan dari anggota yang perlu diverifikasi.</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="bg-amber-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">{{ $setorMenunggu }}</span>
+            <i class="fas fa-chevron-right text-amber-400"></i>
+        </div>
+    </div>
+</a>
+@endif
+
 <!-- Filter Bar -->
 <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 mb-4 flex flex-col md:flex-row gap-3">
     <div class="flex-1">

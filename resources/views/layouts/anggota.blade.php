@@ -151,7 +151,15 @@
             </a>
             <a href="{{ route('anggota.pembayaran.index') }}" class="nav-item {{ request()->routeIs('anggota.pembayaran.*') ? 'active' : '' }}">
                 <i class="fas fa-file-invoice-dollar"></i>
-                <span>Pembayaran</span>
+                <span>Bayar</span>
+            </a>
+            <a href="{{ route('anggota.setor_simpanan.index') }}" class="nav-item {{ request()->routeIs('anggota.setor_simpanan.*') ? 'active' : '' }}">
+                <i class="fas fa-piggy-bank"></i>
+                <span>Setor</span>
+            </a>
+            <a href="{{ route('anggota.penarikan.index') }}" class="nav-item {{ request()->routeIs('anggota.penarikan.*') ? 'active' : '' }}">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Penarikan</span>
             </a>
             <a href="{{ route('anggota.profil.index') }}" class="nav-item {{ request()->routeIs('anggota.profil.*') ? 'active' : '' }}">
                 <i class="far fa-user"></i>

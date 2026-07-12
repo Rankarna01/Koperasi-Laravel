@@ -14,7 +14,7 @@ class ShuAnggota extends Model
     protected $fillable = [
         'shu_periode_id', 'anggota_id',
         'kontribusi_simpanan', 'kontribusi_pinjaman',
-        'kontribusi_penjualan', 'total_shu',
+        'kontribusi_penjualan', 'bunga_simpanan', 'total_shu',
     ];
 
     protected function casts(): array
@@ -23,6 +23,7 @@ class ShuAnggota extends Model
             'kontribusi_simpanan' => 'decimal:2',
             'kontribusi_pinjaman' => 'decimal:2',
             'kontribusi_penjualan' => 'decimal:2',
+            'bunga_simpanan' => 'decimal:2',
             'total_shu' => 'decimal:2',
         ];
     }

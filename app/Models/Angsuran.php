@@ -14,7 +14,7 @@ class Angsuran extends Model
     protected $fillable = [
         'peminjaman_id', 'no_referensi', 'angsuran_ke',
         'nominal', 'tanggal_bayar', 'metode_pembayaran',
-        'keterangan', 'created_by',
+        'keterangan', 'created_by', 'status', 'snap_token', 'jatuh_tempo',
     ];
 
     protected function casts(): array
@@ -22,6 +22,7 @@ class Angsuran extends Model
         return [
             'nominal' => 'decimal:2',
             'tanggal_bayar' => 'date',
+            'jatuh_tempo' => 'date',
         ];
     }
 

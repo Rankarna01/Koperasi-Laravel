@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Bendahara;
 use App\Http\Controllers\Controller;
 use App\Models\Anggota;
 use App\Models\Simpanan;
+use App\Models\SetorSimpanan;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
@@ -13,7 +14,8 @@ class SimpananController extends Controller
     public function index()
     {
         $anggotaList = Anggota::aktif()->orderBy('nama_lengkap')->get();
-        return view('bendahara.simpanan.index', compact('anggotaList'));
+        $setorMenunggu = SetorSimpanan::where('status', 'menunggu_bendahara')->count();
+        return view('bendahara.simpanan.index', compact('anggotaList', 'setorMenunggu'));
     }
 
     public function data(Request $request)

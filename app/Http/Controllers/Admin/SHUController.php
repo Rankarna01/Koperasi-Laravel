@@ -9,6 +9,7 @@ use App\Models\Anggota;
 use App\Models\Peminjaman;
 use App\Models\Simpanan;
 use App\Models\Penjualan;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -43,7 +44,12 @@ class SHUController extends Controller
             // 2. Hitung laba penjualan (dari rekap penjualan bulanan)
             $labaPenjualan = Penjualan::where('tahun', $tahun)->sum('total_laba');
 
-            $totalPendapatan = $totalBungaPinjaman + $labaPenjualan;
+            // 3. Hitung bunga simpanan (0.2% per tahun dari total simpanan)
+            $bungaSimpananPersen = (float) Setting::get('bunga_simpanan_persen', 0.2);
+            $totalSimpananSemuaAnggota = Simpanan::whereYear('tanggal', $tahun)->sum('nominal');
+            $totalBungaSimpanan = $totalSimpananSemuaAnggota * ($bungaSimpananPersen / 100);
+
+            $totalPendapatan = $totalBungaPinjaman + $labaPenjualan + $totalBungaSimpanan;
             $totalBiaya = $totalPendapatan * 0.2; // Estimasi biaya operasional 20%
             $shuBersih = $totalPendapatan - $totalBiaya;
 
@@ -62,14 +68,13 @@ class SHUController extends Controller
                 'created_by' => auth()->id(),
             ]);
 
-            // 3. Hitung SHU per anggota (proporsional)
+            // 4. Hitung SHU per anggota (proporsional)
             $danaAnggota = $shuBersih * 0.5;
             $anggotaAktif = Anggota::aktif()->get();
 
             // Total kontribusi semua anggota
             $totalKontribusiSimpanan = Simpanan::whereYear('tanggal', $tahun)->sum('nominal');
             $totalKontribusiPinjaman = $totalBungaPinjaman;
-            $totalKontribusiPenjualan = 0; // Tidak lagi berdasarkan pembelian anggota individu
 
             foreach ($anggotaAktif as $anggota) {
                 // Kontribusi simpanan per anggota
@@ -83,13 +88,17 @@ class SHUController extends Controller
                     ->whereYear('tanggal_pengajuan', $tahun)
                     ->sum('total_bunga');
 
-                // Proporsi dari Simpanan (60%) dan Pinjaman (40%) - Karena porsi penjualan individu dihapus
+                // Bunga simpanan per anggota
+                $bungaSimpananAnggota = $simpananAnggota * ($bungaSimpananPersen / 100);
+
+                // Proporsi dari Simpanan (50%) dan Pinjaman (30%) dan Bunga Simpanan (20%)
                 $proporsiSimpanan = $totalKontribusiSimpanan > 0 ? ($simpananAnggota / $totalKontribusiSimpanan) : 0;
                 $proporsiPinjaman = $totalKontribusiPinjaman > 0 ? ($bungaAnggota / $totalKontribusiPinjaman) : 0;
 
                 $shuAnggota = $danaAnggota * (
-                    ($proporsiSimpanan * 0.6) +
-                    ($proporsiPinjaman * 0.4)
+                    ($proporsiSimpanan * 0.5) +
+                    ($proporsiPinjaman * 0.3) +
+                    ($bungaSimpananAnggota > 0 ? 0.2 : 0)
                 );
 
                 ShuAnggota::create([
@@ -98,6 +107,7 @@ class SHUController extends Controller
                     'kontribusi_simpanan' => $simpananAnggota,
                     'kontribusi_pinjaman' => $bungaAnggota,
                     'kontribusi_penjualan' => 0,
+                    'bunga_simpanan' => $bungaSimpananAnggota,
                     'total_shu' => $shuAnggota,
                 ]);
             }

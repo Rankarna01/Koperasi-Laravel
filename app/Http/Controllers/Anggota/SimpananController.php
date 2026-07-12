@@ -10,7 +10,17 @@ class SimpananController extends Controller
 {
     public function index()
     {
-        return view('anggota.simpanan.index');
+        $anggota = auth()->user()->anggota;
+
+        $data = [
+            'total_simpanan' => $anggota->total_simpanan,
+            'simpanan_pokok' => $anggota->getSimpananByJenis('pokok'),
+            'simpanan_wajib' => $anggota->getSimpananByJenis('wajib'),
+            'simpanan_sukarela' => $anggota->getSimpananByJenis('sukarela'),
+            'riwayat' => $anggota->simpanan()->latest('tanggal')->take(10)->get(),
+        ];
+
+        return view('anggota.simpanan.index', $data);
     }
 
     public function data(Request $request)

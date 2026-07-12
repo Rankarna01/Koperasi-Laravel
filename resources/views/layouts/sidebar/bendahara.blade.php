@@ -29,4 +29,19 @@
         <i class="fas fa-money-bill-transfer w-5 text-center text-slate-400"></i>
         <span>Angsuran</span>
     </a>
+    <a href="{{ route('bendahara.penarikan.index') }}" class="sidebar-link {{ request()->routeIs('bendahara.penarikan.*') ? 'active' : '' }} flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm text-slate-700">
+        <i class="fas fa-money-bill-wave w-5 text-center text-slate-400"></i>
+        <span>Penarikan Dana</span>
+    </a>
+    <a href="{{ route('bendahara.setor_simpanan.index') }}" class="sidebar-link {{ request()->routeIs('bendahara.setor_simpanan.*') ? 'active' : '' }} flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm text-slate-700">
+        <i class="fas fa-piggy-bank w-5 text-center text-slate-400"></i>
+        <span>Setor Simpanan</span>
+    </a>
+
+    <p class="px-4 mt-4 mb-2 text-[11px] font-bold tracking-wider text-slate-400 uppercase">Sistem</p>
+    
+    <a href="{{ route('bendahara.setting.index') }}" class="sidebar-link {{ request()->routeIs('bendahara.setting.*') ? 'active' : '' }} flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium text-sm text-slate-700">
+        <i class="fas fa-cog w-5 text-center text-slate-400"></i>
+        <span>Pengaturan</span>
+    </a>
 </div>

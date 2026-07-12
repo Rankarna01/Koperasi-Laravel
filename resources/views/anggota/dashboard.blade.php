@@ -75,12 +75,29 @@
             <span class="text-[10px] font-medium text-slate-600 text-center leading-tight">Data<br>Simpanan</span>
         </a>
         
+        <!-- Tarik Dana -->
+        <a href="{{ route('anggota.penarikan.index') }}" class="flex flex-col items-center gap-2">
+            <div class="w-12 h-12 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center text-xl shadow-sm border border-red-100">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <span class="text-[10px] font-medium text-slate-600 text-center leading-tight">Tarik<br>Dana</span>
+        </a>
+    </div>
+    <div class="grid grid-cols-4 gap-3 mt-3">
         <!-- Riwayat -->
         <a href="{{ route('anggota.pembayaran.index') }}" class="flex flex-col items-center gap-2">
             <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center text-xl shadow-sm border border-orange-100">
                 <i class="fas fa-history"></i>
             </div>
             <span class="text-[10px] font-medium text-slate-600 text-center leading-tight">Riwayat<br>Transaksi</span>
+        </a>
+        
+        <!-- Laporan Transparansi -->
+        <a href="{{ route('anggota.laporan.transparansi') }}" class="flex flex-col items-center gap-2">
+            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-xl shadow-sm border border-emerald-100">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <span class="text-[10px] font-medium text-slate-600 text-center leading-tight">Laporan<br>Transparansi</span>
         </a>
     </div>
 </div>
