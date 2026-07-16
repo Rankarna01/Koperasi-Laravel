@@ -13,9 +13,8 @@
                     <i class="fas fa-building-columns text-white text-lg"></i>
                 </div>
             @endif
-            <div>
-                <h1 class="font-poppins font-bold text-primary-600 text-sm leading-tight">{{ \App\Models\Setting::get('app_name', 'KOPKAR') }}</h1>
-                <p class="text-[10px] text-slate-400 leading-tight">Sejahtera Bersama</p>
+            <div class="flex-1 min-w-0">
+                <h1 class="font-poppins font-bold text-primary-600 text-sm leading-tight truncate">{{ \App\Models\Setting::get('app_name', 'Koperasi Sejahtera') }}</h1>
             </div>
         </div>
 
