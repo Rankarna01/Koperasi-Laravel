@@ -19,6 +19,7 @@ class Peminjaman extends Model
         'nominal', 'lama_cicilan', 'bunga_persen',
         'total_bunga', 'total_bayar', 'angsuran_per_bulan',
         'tujuan_pinjaman', 'keterangan', 'dokumen_pendukung',
+        'metode_pembayaran', 'nama_bank', 'nomor_rekening',
         'status', 'catatan_bendahara', 'catatan_ketua',
         'verified_by', 'approved_by', 'verified_at', 'approved_at',
         'tanggal_pencairan', 'tanggal_lunas',

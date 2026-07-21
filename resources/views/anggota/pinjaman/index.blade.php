@@ -84,6 +84,28 @@
             <label class="block text-xs font-medium text-slate-500 mb-1">Tujuan Pinjaman</label>
             <textarea name="tujuan_pinjaman" required rows="3" placeholder="Modal usaha toko kelontong..." class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition text-sm font-medium text-slate-700"></textarea>
         </div>
+
+        <div>
+            <label class="block text-xs font-medium text-slate-500 mb-1">Metode Pembayaran (Pencairan)</label>
+            <div class="relative">
+                <select name="metode_pembayaran" id="metodePembayaran" required onchange="toggleTransferFields()" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition text-sm appearance-none font-medium text-slate-700">
+                    <option value="cash">Tunai / Cash</option>
+                    <option value="transfer">Transfer Bank</option>
+                </select>
+                <i class="fas fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+            </div>
+        </div>
+
+        <div id="transferFields" class="hidden space-y-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+            <div>
+                <label class="block text-xs font-medium text-slate-500 mb-1">Nama Bank / E-Wallet</label>
+                <input type="text" name="nama_bank" id="namaBank" placeholder="Contoh: BCA / BRI / OVO" class="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-500 mb-1">Nomor Rekening / No. HP</label>
+                <input type="number" name="nomor_rekening" id="nomorRekening" placeholder="Masukkan nomor rekening valid" class="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+            </div>
+        </div>
     </div>
 
     <div class="mt-8 mb-6">
@@ -136,6 +158,25 @@
             input.value = new Intl.NumberFormat('id-ID').format(value);
         } else {
             $('#rawNominal').val(0);
+        }
+    }
+
+    function toggleTransferFields() {
+        const metode = document.getElementById('metodePembayaran').value;
+        const transferFields = document.getElementById('transferFields');
+        const namaBank = document.getElementById('namaBank');
+        const nomorRekening = document.getElementById('nomorRekening');
+        
+        if(metode === 'transfer') {
+            transferFields.classList.remove('hidden');
+            namaBank.required = true;
+            nomorRekening.required = true;
+        } else {
+            transferFields.classList.add('hidden');
+            namaBank.required = false;
+            nomorRekening.required = false;
+            namaBank.value = '';
+            nomorRekening.value = '';
         }
     }
 

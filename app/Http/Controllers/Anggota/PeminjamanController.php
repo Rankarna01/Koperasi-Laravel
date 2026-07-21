@@ -48,6 +48,12 @@ class PeminjamanController extends Controller
             'lama_cicilan' => 'required|integer|in:6,12,18,24,36',
             'tujuan_pinjaman' => 'required|string|max:255',
             'keterangan' => 'nullable|string',
+            'metode_pembayaran' => 'required|in:cash,transfer',
+            'nama_bank' => 'required_if:metode_pembayaran,transfer|nullable|string|max:100',
+            'nomor_rekening' => 'required_if:metode_pembayaran,transfer|nullable|string|max:50',
+        ], [
+            'nama_bank.required_if' => 'Nama bank wajib diisi jika memilih Transfer.',
+            'nomor_rekening.required_if' => 'Nomor rekening wajib diisi jika memilih Transfer.',
         ]);
 
         $anggota = auth()->user()->anggota;
@@ -61,6 +67,9 @@ class PeminjamanController extends Controller
             'bunga_persen' => 1.00, // 1% flat per bulan
             'tujuan_pinjaman' => $request->tujuan_pinjaman,
             'keterangan' => $request->keterangan,
+            'metode_pembayaran' => $request->metode_pembayaran,
+            'nama_bank' => $request->metode_pembayaran === 'transfer' ? $request->nama_bank : null,
+            'nomor_rekening' => $request->metode_pembayaran === 'transfer' ? $request->nomor_rekening : null,
             'status' => 'menunggu_bendahara',
         ]);
 

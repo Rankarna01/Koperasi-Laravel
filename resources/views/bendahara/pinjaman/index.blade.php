@@ -98,6 +98,16 @@
                                     -
                                 </div>
                             </div>
+                            <div class="col-span-2 pt-2 border-t border-slate-100">
+                                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Metode Pencairan</p>
+                                <div id="v_metode_wrap">
+                                    <span id="v_metode_badge" class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-100 text-slate-700 text-xs font-bold rounded-full">-</span>
+                                </div>
+                                <div id="v_rekening_wrap" class="hidden mt-3 p-3 bg-amber-50 rounded-xl border border-amber-100 space-y-1">
+                                    <p class="text-xs text-slate-500">Bank/E-Wallet: <span class="font-bold text-slate-800" id="v_nama_bank">-</span></p>
+                                    <p class="text-xs text-slate-500">No. Rekening: <span class="font-bold text-slate-800 font-mono" id="v_nomor_rekening">-</span></p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -293,6 +303,17 @@
                     $('#v_bunga').text(p.bunga_persen);
                     $('#v_angsuran').text('Rp ' + new Intl.NumberFormat('id-ID').format(p.angsuran_per_bulan));
                     $('#v_tujuan').text(p.tujuan_pinjaman || '-');
+
+                    // Metode Pembayaran
+                    if(p.metode_pembayaran === 'transfer') {
+                        $('#v_metode_badge').html('<i class="fas fa-university"></i> Transfer Bank').removeClass('bg-slate-100 text-slate-700').addClass('bg-blue-100 text-blue-700');
+                        $('#v_nama_bank').text(p.nama_bank || '-');
+                        $('#v_nomor_rekening').text(p.nomor_rekening || '-');
+                        $('#v_rekening_wrap').removeClass('hidden');
+                    } else {
+                        $('#v_metode_badge').html('<i class="fas fa-money-bill-wave"></i> Tunai / Cash').removeClass('bg-blue-100 text-blue-700').addClass('bg-green-100 text-green-700');
+                        $('#v_rekening_wrap').addClass('hidden');
+                    }
                     
                     $('#v_nama').text(p.anggota.nama_lengkap);
                     $('#v_inisial').text(p.anggota.nama_lengkap.charAt(0).toUpperCase());
