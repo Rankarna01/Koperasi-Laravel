@@ -66,9 +66,14 @@
                         </div>
                         
                         @if($a->status === 'pending' && $a->snap_token)
-                            <button onclick="lanjutkanBayar('{{ $a->snap_token }}')" class="px-3 py-1.5 bg-primary-600 text-white rounded-lg text-[10px] font-bold shadow-md shadow-primary-500/30 hover:bg-primary-700 transition flex items-center gap-1.5">
-                                <i class="fas fa-credit-card"></i> Bayar
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <button onclick="cekStatus('{{ $a->no_referensi }}', true)" class="px-2.5 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-[10px] font-bold hover:bg-slate-200 transition flex items-center gap-1">
+                                    <i class="fas fa-sync text-[9px]"></i> Cek Status
+                                </button>
+                                <button onclick="lanjutkanBayar('{{ $a->snap_token }}', '{{ $a->no_referensi }}')" class="px-3 py-1.5 bg-primary-600 text-white rounded-lg text-[10px] font-bold shadow-md shadow-primary-500/30 hover:bg-primary-700 transition flex items-center gap-1.5">
+                                    <i class="fas fa-credit-card"></i> Bayar
+                                </button>
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -169,11 +174,37 @@
 
     function closeModal() { $('#formModal').addClass('hidden'); }
 
-    function lanjutkanBayar(snapToken) {
+    function cekStatus(orderId, force = false) {
+        showLoading();
+        $.ajax({
+            url: "{{ route('anggota.pembayaran.sync') }}",
+            method: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                order_id: orderId,
+                force: force ? 1 : 0
+            },
+            success: function(res) {
+                hideLoading();
+                if(res.success) {
+                    showToast('success', res.message);
+                    setTimeout(() => location.reload(), 1200);
+                } else {
+                    showToast('info', res.message);
+                }
+            },
+            error: function() {
+                hideLoading();
+                showToast('error', 'Gagal memperbarui status pembayaran.');
+            }
+        });
+    }
+
+    function lanjutkanBayar(snapToken, orderId) {
         snap.pay(snapToken, {
             onSuccess: function(result){
-                showToast('success', 'Pembayaran berhasil dikonfirmasi!');
-                setTimeout(() => location.reload(), 1500);
+                showToast('success', 'Pembayaran berhasil! Mengonfirmasi...');
+                cekStatus(result.order_id || orderId, true);
             },
             onPending: function(result){
                 showToast('info', 'Menunggu pembayaran diselesaikan.');
@@ -185,7 +216,6 @@
             },
             onClose: function(){
                 showToast('warning', 'Anda menutup popup sebelum pembayaran selesai.');
-                setTimeout(() => location.reload(), 1500);
             }
         });
     }

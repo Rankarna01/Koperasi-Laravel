@@ -215,6 +215,7 @@ Route::middleware(['auth', 'role:anggota'])->prefix('anggota')->name('anggota.')
     Route::get('/pembayaran', [Anggota\PembayaranController::class, 'index'])->name('pembayaran.index');
     Route::get('/pembayaran/data', [Anggota\PembayaranController::class, 'data'])->name('pembayaran.data');
     Route::post('/pembayaran', [Anggota\PembayaranController::class, 'store'])->name('pembayaran.store');
+    Route::post('/pembayaran/sync', [Anggota\PembayaranController::class, 'syncStatus'])->name('pembayaran.sync');
 
     // Penarikan Dana
     Route::get('/penarikan', [Anggota\PenarikanController::class, 'index'])->name('penarikan.index');

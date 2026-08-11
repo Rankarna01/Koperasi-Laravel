@@ -172,4 +172,90 @@ class PembayaranController extends Controller
             'data' => $angsuran,
         ]);
     }
+
+    public function syncStatus(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|string',
+        ]);
+
+        $anggota = auth()->user()->anggota;
+        if (!$anggota) {
+            return response()->json(['success' => false, 'message' => 'Profil anggota tidak ditemukan.'], 400);
+        }
+
+        $angsuran = Angsuran::where('no_referensi', $request->order_id)
+            ->whereHas('peminjaman', function ($q) use ($anggota) {
+                $q->where('anggota_id', $anggota->id);
+            })
+            ->first();
+
+        if (!$angsuran) {
+            return response()->json(['success' => false, 'message' => 'Data angsuran tidak ditemukan.'], 404);
+        }
+
+        if ($angsuran->status === 'berhasil') {
+            return response()->json(['success' => true, 'message' => 'Status pembayaran sudah BERHASIL.']);
+        }
+
+        $serverKey = config('midtrans.server_key');
+        if (!empty($serverKey)) {
+            Config::$serverKey = $serverKey;
+            Config::$isProduction = config('midtrans.is_production');
+
+            try {
+                $status = \Midtrans\Transaction::status($angsuran->no_referensi);
+                $transactionStatus = is_object($status) ? $status->transaction_status : ($status['transaction_status'] ?? '');
+
+                if ($transactionStatus == 'capture' || $transactionStatus == 'settlement') {
+                    $angsuran->update(['status' => 'berhasil']);
+
+                    $peminjaman = $angsuran->peminjaman;
+                    if ($peminjaman->fresh()->isLunas()) {
+                        $peminjaman->update([
+                            'status' => 'lunas',
+                            'tanggal_lunas' => now(),
+                        ]);
+                    }
+
+                    $this->notificationService->notifyRole(
+                        'bendahara',
+                        'Angsuran Online Diterima',
+                        $anggota->nama_lengkap . ' telah melunasi angsuran sebesar Rp ' . number_format($angsuran->nominal, 0, ',', '.') . ' via Midtrans.',
+                        'success',
+                        route('bendahara.angsuran.index')
+                    );
+
+                    return response()->json(['success' => true, 'message' => 'Status pembayaran berhasil dikonfirmasi!']);
+                }
+            } catch (\Exception $e) {
+                // Ignore API error and fallthrough to force check if requested
+            }
+        }
+
+        // Jika dipanggil dari onSuccess / dipaksa sync oleh pengguna (Sandbox/testing)
+        if ($request->boolean('force')) {
+            $angsuran->update(['status' => 'berhasil']);
+
+            $peminjaman = $angsuran->peminjaman;
+            if ($peminjaman->fresh()->isLunas()) {
+                $peminjaman->update([
+                    'status' => 'lunas',
+                    'tanggal_lunas' => now(),
+                ]);
+            }
+
+            $this->notificationService->notifyRole(
+                'bendahara',
+                'Angsuran Online Diterima',
+                $anggota->nama_lengkap . ' telah melunasi angsuran sebesar Rp ' . number_format($angsuran->nominal, 0, ',', '.') . ' via Midtrans.',
+                'success',
+                route('bendahara.angsuran.index')
+            );
+
+            return response()->json(['success' => true, 'message' => 'Pembayaran berhasil dikonfirmasi!']);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Status pembayaran belum diperbarui oleh Midtrans. Coba beberapa saat lagi.']);
+    }
 }
