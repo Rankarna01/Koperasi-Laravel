@@ -65,6 +65,12 @@ class PembayaranController extends Controller
         ]);
 
         $anggota = auth()->user()->anggota;
+        if (!$anggota) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Profil anggota tidak ditemukan.'
+            ], 400);
+        }
         
         // Pastikan pinjaman milik anggota ini
         $peminjaman = Peminjaman::where('id', $request->peminjaman_id)
@@ -88,8 +94,17 @@ class PembayaranController extends Controller
         ]);
 
         if ($isMidtrans) {
+            $serverKey = config('midtrans.server_key');
+            if (empty($serverKey)) {
+                $angsuran->delete();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Pengaturan Midtrans Server Key belum diisi di server (.env).'
+                ], 400);
+            }
+
             // Setup Midtrans Config
-            Config::$serverKey = config('midtrans.server_key');
+            Config::$serverKey = $serverKey;
             Config::$isProduction = config('midtrans.is_production');
             Config::$isSanitized = config('midtrans.is_sanitized');
             Config::$is3ds = config('midtrans.is_3ds');
@@ -128,8 +143,8 @@ class PembayaranController extends Controller
                 $angsuran->delete();
                 return response()->json([
                     'success' => false,
-                    'message' => 'Gagal membuat transaksi pembayaran online: ' . $e->getMessage()
-                ], 500);
+                    'message' => 'Gagal membuat transaksi pembayaran Midtrans: ' . $e->getMessage()
+                ], 400);
             }
         }
 
