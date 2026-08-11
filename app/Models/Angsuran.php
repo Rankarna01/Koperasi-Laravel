@@ -41,13 +41,7 @@ class Angsuran extends Model
      */
     public static function generateNoReferensi(): string
     {
-        $date = date('Ymd');
-        $prefix = 'TRK' . $date;
-        $last = static::where('no_referensi', 'like', $prefix . '%')
-            ->orderBy('id', 'desc')
-            ->first();
-
-        $number = $last ? ((int) substr($last->no_referensi, -4)) + 1 : 1;
-        return $prefix . str_pad($number, 4, '0', STR_PAD_LEFT);
+        // TRK (3) + YmdHis (14) + Rand (4) = 21 chars (fits in string(30))
+        return 'TRK' . date('YmdHis') . mt_rand(1000, 9999);
     }
 }
